@@ -1,14 +1,18 @@
-import React,{ useState } from 'react'
-import { Link } from "react-router-dom";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { UserData } from "../context/UserContext";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  
-  const submitHandler=(e)=>{
+
+  const navigate = useNavigate();
+  const { loginUser } = UserData();
+
+  const submitHandler = (e) => {
     e.preventDefault();
-    console.log(email,password);
-  }
+    loginUser(email, password, navigate);
+  };
   return (
     <>
       <div className="flex justify-center">
@@ -55,6 +59,6 @@ const Login = () => {
       </div>
     </>
   );
-}
+};
 
-export default Login
+export default Login;
