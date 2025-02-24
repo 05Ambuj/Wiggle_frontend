@@ -7,7 +7,7 @@ const Login = () => {
   const [password, setPassword] = useState("");
 
   const navigate = useNavigate();
-  const { loginUser } = UserData();
+  const { loginUser,loading } = UserData();
 
   const submitHandler = (e) => {
     e.preventDefault();
@@ -15,7 +15,7 @@ const Login = () => {
   };
   return (
     <>
-      <div className="flex justify-center">
+      {loading?<h1>Loading...</h1>:(<div className="flex justify-center">
         <div className="flex flex-col justify-center items-center md:flex-row shadow-md rounded-xl max-w-7xl w-[90%] md:w-[50%] md:mt-[140px]">
           <div className="w-full md:w-3/4">
             <div className="text-xl cursor-pointer flex flex-col justify-center items-center mt-5 md:mt-0 py-4">
@@ -56,7 +56,7 @@ const Login = () => {
             </div>
           </div>
         </div>
-      </div>
+      </div>)}
     </>
   );
 };

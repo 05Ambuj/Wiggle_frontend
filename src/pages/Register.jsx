@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { UserData } from "../context/UserContext";
 
 const Register = () => {
   const [name, setName] = useState("");
@@ -9,9 +10,19 @@ const Register = () => {
   const [file, setFile] = useState("");
   const [filePrev, setFilePrev] = useState("");
 
+  const {registerUser,loading}=UserData()
+  const navigate=useNavigate()
+
   const submitHandler = (e) => {
     e.preventDefault();
-    console.log(name, email, password, gender);
+    const formData=new FormData()
+    formData.append("name",name)
+    formData.append("email",email)
+    formData.append("password",password)
+    formData.append("gender",gender)
+    formData.append("file",file)
+
+    registerUser(formData,navigate)
   };
 
   const changeFileHandler = (e) => {
@@ -26,7 +37,7 @@ const Register = () => {
 
   return (
     <>
-      <div className="flex justify-center">
+      {loading?<h1>Loading...</h1> :(<div className="flex justify-center">
         <div className="flex flex-col justify-center items-center md:flex-row shadow-md rounded-xl max-w-7xl w-[90%] md:w-[50%] md:mt-[40px]">
           <div className="w-full md:w-3/4">
             <div className="text-xl cursor-pointer flex flex-col justify-center items-center mt-5 md:mt-0 py-4">
@@ -92,7 +103,7 @@ const Register = () => {
             </div>
           </div>
         </div>
-      </div>
+      </div>)} 
     </>
   );
 };
