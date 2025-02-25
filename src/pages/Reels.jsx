@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import AddPost from "../components/AddPost";
 import { postData } from "../context/PostContext";
 import PostCard from "../components/PostCard";
+import {Loading} from "../components/Loading";
 
 import {
   MdOutlineKeyboardArrowDown,
@@ -10,7 +11,7 @@ import {
 
 const Reels = () => {
   const [index, setIndex] = useState(0);
-  const { reels } = postData();
+  const { reels,loading } = postData();
 
   const prevReel = () => {
     if (index === 0) {
@@ -28,7 +29,7 @@ const Reels = () => {
 
   return (
     <>
-      <div className="bg-gray-100">
+      {loading?<Loading/>:(<div className="bg-gray-100">
         <AddPost type="reel" />
         <div className="flex gap-3 m-auto w-[300px] md:w-[500px]">
           {reels && reels.length > 0 ? (
@@ -63,7 +64,7 @@ const Reels = () => {
             )}
           </div>
         </div>
-      </div>
+      </div>)}
     </>
   );
 };

@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import { postData } from "../context/PostContext";
+import { Loading, LoadingAnimation } from "./Loading";
 
 const AddPost = ({ type }) => {
   const [caption, setCaption] = useState("");
   const [file, setFile] = useState("");
   const [filePrev, setFilePrev] = useState("");
 
-  const {addPost}=postData();
+  const {addPost,addLoading}=postData();
   
   const changeFileHandler = (e) => {
     const file = e.target.files[0];
@@ -46,6 +47,7 @@ const AddPost = ({ type }) => {
             className="custom-input"
             accept={type === "post" ? "image/*" : "video/*"}
             onChange={changeFileHandler}
+            required
           />
           {filePrev && (
             <>
@@ -64,9 +66,8 @@ const AddPost = ({ type }) => {
               )}
             </>
           )}
-          <button className="bg-blue-500 text-white px-4 py-2 rounded-md">
-            {" "}
-            +Add Post
+          <button disabled={addLoading} className="bg-blue-500 text-white px-4 py-2 rounded-md">
+            {addLoading?<LoadingAnimation/>:"Add Post"}
           </button>
         </form>
       </div>

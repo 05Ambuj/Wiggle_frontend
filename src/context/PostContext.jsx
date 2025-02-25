@@ -7,6 +7,9 @@ const PostContext = createContext();
 export const PostContextProvider = ({ children }) => {
   const [posts, setPosts] = useState([]);
   const [reels, setReels] = useState([]);
+  const [loading, setLoading]=useState(true)
+  const [addLoading, setAddLoading]=useState(false)
+
 
   async function fetchPosts() {
     try {
@@ -14,12 +17,15 @@ export const PostContextProvider = ({ children }) => {
 
       setPosts(data.posts);
       setReels(data.reels);
+      setLoading(false)
     } catch (error) {
       console.log(error);
+      setLoading(false)
     }
   }
 
   async function addPost(formData, setFile, setCaption, setFilePrev, type) {
+    setAddLoading(true)
     try {
       const { data } = await axios.post("/api/post/new?type=" + type, formData);
       toast.success(data.message);
@@ -27,8 +33,10 @@ export const PostContextProvider = ({ children }) => {
       setFile("");
       setFilePrev("");
       setCaption("");
+      setAddLoading(false)
     } catch (error) {
       toast.error(error.response.data.message);
+      setAddLoading(false)
     }
   }
 
@@ -61,7 +69,7 @@ export const PostContextProvider = ({ children }) => {
 
   return (
     <PostContext.Provider
-      value={{ reels, posts, addPost, likePost, addComment }}
+      value={{ reels, posts, addPost, likePost, addComment,loading, addLoading }}
     >
       {children}
     </PostContext.Provider>
