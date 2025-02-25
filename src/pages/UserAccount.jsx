@@ -4,21 +4,30 @@ import { UserData } from "../context/UserContext";
 import { postData } from "../context/PostContext";
 import PostCard from "../components/PostCard";
 import axios from "axios";
+import { Loading } from "../components/Loading";
+import Modal from "../components/Modal";
 
 import {
   MdOutlineKeyboardArrowDown,
   MdOutlineKeyboardArrowUp,
 } from "react-icons/md";
-import { Loading } from "../components/Loading";
 
 const UserAccount = ({ user: loggedInUser }) => {
-  const navigate = useNavigate();
   const { posts, reels } = postData();
   const [type, setType] = useState("posts");
   const [index, setIndex] = useState(0);
   const [user, setUser] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [followed, setFollowed] = useState(false);
+  const [followersData,setFollowersData]=useState([])
+  const [followingsData, setFollowingsData] = useState([])
+  const [show,setShow]=useState(false)
+  const [show1,setShow1]=useState(false)
+
   const params = useParams();
+  const navigate = useNavigate();
+  const { followUser } = UserData();
+  const followers = user.followers;
 
   async function fetchUser() {
     try {
@@ -33,8 +42,17 @@ const UserAccount = ({ user: loggedInUser }) => {
 
   useEffect(() => {
     fetchUser();
-  }, []);
-  console.log(user);
+  }, [params.id]);
+
+  const followHandler = () => {
+    setFollowed(!followed);
+    followUser(user._id,fetchUser)
+  };
+
+  useEffect(() => {
+    if (followers && followers.includes(loggedInUser._id)) setFollowed(true);
+  }, [user]);
+
 
   let myPosts, myReels;
 
@@ -50,7 +68,22 @@ const UserAccount = ({ user: loggedInUser }) => {
     if (index === myReels.length - 1) return null;
     setIndex(index + 1);
   };
+
+
+  async function followData() {
+    try {
+      const {data}=await axios.get("/api/user/followdata/"+user._id)
+      setFollowersData(data.followers)
+      setFollowingsData(data.followings)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+  useEffect(() => {
+    followData()
+  }, [user])
   
+
   return (
     <>
       {loading ? (
@@ -60,6 +93,12 @@ const UserAccount = ({ user: loggedInUser }) => {
           {user && (
             <>
               <div className="bg-gray-100 min-h-screen flex flex-col gap-4 items-center justify-center pt-3 pb-14">
+                {
+                  show && <Modal value={followersData} title={"Followers"} setShow={setShow}/>
+                }
+                {
+                  show1 && <Modal value={followingsData} title={"Followings"} setShow={setShow1}/>
+                }
                 <div className="bg-white flex justify-between gap-4 p-8 rounded-lg shadow-md max-w-md">
                   <div className="image flex flex-col justify-between gap-4 mb-4">
                     <img
@@ -72,12 +111,21 @@ const UserAccount = ({ user: loggedInUser }) => {
                     <p className="text-gray-800 font-semibold">{user.name}</p>
                     <p className="text-gray-500 font-sm">{user.email}</p>
                     <p className="text-gray-500 font-sm">{user.gender}</p>
-                    <p className="text-gray-500 font-sm">
+                    <p className="text-gray-500 font-sm cursor-pointer" onClick={()=>setShow(true)}>
                       {user.followers.length} followers
                     </p>
-                    <p className="text-gray-500 font-sm">
+                    <p className="text-gray-500 font-sm cursor-pointer" onClick={()=>setShow1(true)}>
                       {user.followings.length} followings
                     </p>
+
+                    {user._id===loggedInUser._id?"":(                    <button
+                      onClick={followHandler}
+                      className={`py-2 px-5 text-white rounded-md ${
+                        followed ? "bg-red-500" : "bg-blue-400"
+                      }`}
+                    >
+                      {followed ? "Unfollow" : "Follow"}
+                    </button>)}
                   </div>
                 </div>
                 <div className="controls flex justify-center items-center p-4 bg-white rounded-md gap-7">

@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { UserData } from "../context/UserContext";
 import { postData } from "../context/PostContext";
 import PostCard from "../components/PostCard";
+import Modal from "../components/Modal";
+import axios from "axios";
 
 import {
   MdOutlineKeyboardArrowDown,
@@ -15,6 +17,14 @@ const Account = ({ user }) => {
   const { posts, reels } = postData();
   const [type, setType] = useState("posts");
   const [index, setIndex] = useState(0);
+  const [followed, setFollowed] = useState(false);
+  const [followersData, setFollowersData] = useState([]);
+  const [followingsData, setFollowingsData] = useState([]);
+  const [show, setShow] = useState(false);
+  const [show1, setShow1] = useState(false);
+
+  const { followUser } = UserData();
+  const followers = user.followers;
 
   let myPosts, myReels;
 
@@ -35,11 +45,38 @@ const Account = ({ user }) => {
     logoutUser(navigate);
   };
 
+  async function followData() {
+    try {
+      const { data } = await axios.get("/api/user/followdata/" + user._id);
+      setFollowersData(data.followers);
+      setFollowingsData(data.followings);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  useEffect(() => {
+    followData();
+  }, [user]);
+
   return (
     <>
       {user && (
         <>
           <div className="bg-gray-100 min-h-screen flex flex-col gap-4 items-center justify-center pt-3 pb-14">
+            {show && (
+              <Modal
+                value={followersData}
+                title={"Followers"}
+                setShow={setShow}
+              />
+            )}
+            {show1 && (
+              <Modal
+                value={followingsData}
+                title={"Followings"}
+                setShow={setShow1}
+              />
+            )}
             <div className="bg-white flex justify-between gap-4 p-8 rounded-lg shadow-md max-w-md">
               <div className="image flex flex-col justify-between gap-4 mb-4">
                 <img
@@ -52,11 +89,11 @@ const Account = ({ user }) => {
                 <p className="text-gray-800 font-semibold">{user.name}</p>
                 <p className="text-gray-500 font-sm">{user.email}</p>
                 <p className="text-gray-500 font-sm">{user.gender}</p>
-                <p className="text-gray-500 font-sm">
-                  {user.followers.length} followers
+                <p className="text-gray-500 font-sm cursor-pointer" onClick={()=>setShow(true)}>
+                {user.followers.length} followers
                 </p>
-                <p className="text-gray-500 font-sm">
-                  {user.followings.length} followings
+                <p className="text-gray-500 font-sm cursor-pointer" onClick={()=>setShow1(true)}>
+                {user.followings.length} followings
                 </p>
 
                 <button
