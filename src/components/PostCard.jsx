@@ -1,10 +1,33 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { BsChatFill, BsThreeDotsVertical } from "react-icons/bs";
 import { IoHeartOutline, IoHeartSharp } from "react-icons/io5";
+import { UserData } from "../context/UserContext";
+import { postData } from "../context/PostContext";
 
 const PostCard = ({ type, value }) => {
   const [isLike, setIsLike] = useState(false);
   const [show, setShow] = useState(false);
+  const [comment,setComment]=useState("")
+  const {user}=UserData()
+  const {likePost,addComment}=postData()
+
+  useEffect(()=>{
+    for(let i=0;i<value.likes.length;i++){
+      if(value.likes[i]===user._id)
+        setIsLike(true)
+    }
+  },[value,user._id])
+
+  const likeHandler=()=>{
+    setIsLike(!isLike)
+    likePost(value._id)
+  }
+
+  const addCommentHandler=(e)=>{
+    e.preventDefault()
+    addComment(value._id,comment,setComment,setShow)
+  }
+
 
   return (
     <div className="bg-gray-100 flex justify-center items-center pt-3 pb-14">
@@ -52,7 +75,7 @@ const PostCard = ({ type, value }) => {
         <div className="flex items-center justify-between text-gray-500">
           <div className="flex items-center space-x-2">
             <span
-              onClick={() => setIsLike(!isLike)}
+              onClick={likeHandler}
               className="text-red-500 text-2xl cursor-pointer"
             >
               {isLike ? <IoHeartSharp /> : <IoHeartOutline />}
@@ -70,13 +93,15 @@ const PostCard = ({ type, value }) => {
           </button>
         </div>
         {show && (
-          <form className="flex gap-3">
+          <form onSubmit={addCommentHandler} className="flex gap-3">
             <input
               type="text"
               className="custom-input"
               placeholder="Enter Comment"
+              value={comment}
+              onChange={(e)=>setComment(e.target.value)}
             />
-            <button className="bg-gray-100 rounded-lg px-5 py-2">Add</button>
+            <button type="submit" className="bg-gray-100 rounded-lg px-5 py-2">Add</button>
           </form>
         )}
         <hr className="mt-2 mb-2" />
@@ -85,7 +110,7 @@ const PostCard = ({ type, value }) => {
         <div className="mt-4 ">
           <div className="comments max-h-[200px] overflow-y-auto">
             {value.comments && value.comments.length > 0 ? (
-              value.comments.map((e) => <Comment />)
+              value.comments.map((e) => <Comment value={e} key={e._id}/>)
             ) : (
               <p>No Comments</p>
             )}
@@ -98,13 +123,13 @@ const PostCard = ({ type, value }) => {
 
 export default PostCard;
 
-export const Comment = () => {
+export const Comment = ({value}) => {
   return (
     <div className="flex items-center space-x-2 mt-2">
       <img src="new.jpg" alt="" />
       <div className="">
-        <p className="text-gray-800 font-semibold">Ambuj</p>
-        <p className="text-gray-500 font-sm">This is a comment</p>
+        <p className="text-gray-800 font-semibold">{value.name}</p>
+        <p className="text-gray-500 font-sm">{value.comment}</p>
       </div>
     </div>
   );
