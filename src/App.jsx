@@ -12,7 +12,6 @@ import {Loading} from "./components/Loading";
 import UserAccount from "./pages/UserAccount";
 import Search from "./pages/Search";
 import ChatPage from "./pages/ChatPage";
-
 const App=()=>{
   const {loading,isAuth,user}=UserData()
   return (
