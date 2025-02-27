@@ -10,6 +10,8 @@ import NotFound from "./components/misc/NotFound";
 import Reels from "./pages/Reels";
 import {Loading} from "./components/Loading";
 import UserAccount from "./pages/UserAccount";
+import Search from "./pages/Search";
+import ChatPage from "./pages/ChatPage";
 
 const App=()=>{
   const {loading,isAuth,user}=UserData()
@@ -23,6 +25,8 @@ const App=()=>{
           <Route path="/user/:id" element={isAuth?<UserAccount user={user}/>:<Login/>} />
           <Route path="/login" element={!isAuth?<Login />:<Home/>} />
           <Route path="/register" element={!isAuth?<Register />:<Home/>} />
+          <Route path="/search" element={!isAuth?<Login />:<Search/>} />
+          <Route path="/chat" element={!isAuth?<Login />:<ChatPage/>} />
           <Route path="*" element={<NotFound/>} />
         </Routes>
         {isAuth && <NavigationBar/>}

@@ -67,7 +67,6 @@ export const UserContextProvider = ({ children }) => {
       setIsAuth(true);
       setLoading(false);
     } catch (error) {
-      // console.log(error);
       setIsAuth(false);
       setLoading(false);
     }
@@ -87,6 +86,28 @@ export const UserContextProvider = ({ children }) => {
     }
   }
 
+  async function updateProfile(id,formData,setFile) {
+    try {
+      const { data } = await axios.put(`/api/user/${id}`,formData);
+      toast.success(data.message);
+      setFile(null)
+      fetchUser();
+    } catch (error) {
+      toast.error(error.response.data.message);
+    }
+  }
+  async function updateProfileName(id,name,setShowInput) {
+    try {
+      const { data } = await axios.put(`/api/user/${id}`,{name});
+      toast.success(data.message);
+      fetchUser();
+      setShowInput(false)
+    } catch (error) {
+      toast.error(error.response.data.message);
+    }
+  }
+
+
   return (
     <UserContext.Provider
       value={{
@@ -100,6 +121,8 @@ export const UserContextProvider = ({ children }) => {
         logoutUser,
         registerUser,
         followUser,
+        updateProfile,
+        updateProfileName
       }}
     >
       {children}
