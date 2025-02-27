@@ -1,20 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { UserData } from "../context/UserContext";
-import { postData } from "../context/PostContext";
+import { PostData } from "../context/PostContext";
 import PostCard from "../components/PostCard";
 import Modal from "../components/Modal";
 import axios from "axios";
-
+import { Loading } from "../components/Loading";
 import {
   MdOutlineKeyboardArrowDown,
   MdOutlineKeyboardArrowUp,
 } from "react-icons/md";
 
 const Account = ({ user }) => {
-  const navigate = useNavigate();
-  const { logoutUser } = UserData();
-  const { posts, reels } = postData();
   const [type, setType] = useState("posts");
   const [index, setIndex] = useState(0);
   const [followed, setFollowed] = useState(false);
@@ -22,8 +19,10 @@ const Account = ({ user }) => {
   const [followingsData, setFollowingsData] = useState([]);
   const [show, setShow] = useState(false);
   const [show1, setShow1] = useState(false);
-
-  const { followUser } = UserData();
+  
+  const navigate = useNavigate();
+  const { logoutUser,followUser } = UserData();
+  const { posts, reels,loading } = PostData();
   const followers = user.followers;
 
   let myPosts, myReels;
@@ -62,7 +61,7 @@ const Account = ({ user }) => {
     <>
       {user && (
         <>
-          <div className="bg-gray-100 min-h-screen flex flex-col gap-4 items-center justify-center pt-3 pb-14">
+          {loading?<Loading/>:(<div className="bg-gray-100 min-h-screen flex flex-col gap-4 items-center justify-center pt-3 pb-14">
             {show && (
               <Modal
                 value={followersData}
@@ -150,7 +149,7 @@ const Account = ({ user }) => {
               ) : (
                 <p>No Reels yet</p>
               ))}
-          </div>
+          </div>)}
         </>
       )}
     </>

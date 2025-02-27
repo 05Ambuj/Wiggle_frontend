@@ -9,7 +9,7 @@ export const UserContextProvider = ({ children }) => {
   const [isAuth, setIsAuth] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  async function registerUser(formData, navigate) {
+  async function registerUser(formData, navigate,fetchPosts) {
     setLoading(true);
     try {
       const { data } = await axios.post("/api/auth/register", formData);
@@ -18,13 +18,14 @@ export const UserContextProvider = ({ children }) => {
       setUser(data.user);
       navigate("/");
       setLoading(false);
+      fetchPosts()
     } catch (error) {
       toast.error(error.response.data.message);
       setLoading(false);
     }
   }
 
-  async function loginUser(email, password, navigate) {
+  async function loginUser(email, password, navigate,fetchPosts) {
     setLoading(true);
     try {
       const { data } = await axios.post("/api/auth/login", {
@@ -37,6 +38,7 @@ export const UserContextProvider = ({ children }) => {
       setIsAuth(true);
       setUser(data.user);
       setLoading(false);
+      fetchPosts()
     } catch (error) {
       toast.error(error.response.data.message);
       setLoading(false);

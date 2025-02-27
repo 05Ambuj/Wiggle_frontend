@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { postData } from "../context/PostContext";
+import { PostData } from "../context/PostContext";
 import { Loading, LoadingAnimation } from "./Loading";
 
 const AddPost = ({ type }) => {
@@ -7,7 +7,7 @@ const AddPost = ({ type }) => {
   const [file, setFile] = useState("");
   const [filePrev, setFilePrev] = useState("");
 
-  const {addPost,addLoading}=postData();
+  const {addPost,addLoading}=PostData();
   
   const changeFileHandler = (e) => {
     const file = e.target.files[0];

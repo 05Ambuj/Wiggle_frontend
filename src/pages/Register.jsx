@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { UserData } from "../context/UserContext";
+import { PostData } from "../context/PostContext";
 
 const Register = () => {
   const [name, setName] = useState("");
@@ -12,7 +13,8 @@ const Register = () => {
 
   const {registerUser,loading}=UserData()
   const navigate=useNavigate()
-
+    const {fetchPosts}=PostData()
+  
   const submitHandler = (e) => {
     e.preventDefault();
     const formData=new FormData()
@@ -22,7 +24,7 @@ const Register = () => {
     formData.append("gender",gender)
     formData.append("file",file)
 
-    registerUser(formData,navigate)
+    registerUser(formData,navigate,fetchPosts)
   };
 
   const changeFileHandler = (e) => {

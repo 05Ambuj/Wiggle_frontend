@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import AddPost from "../components/AddPost";
-import { postData } from "../context/PostContext";
+import { PostData } from "../context/PostContext";
 import PostCard from "../components/PostCard";
 import {Loading} from "../components/Loading";
 
@@ -11,7 +11,7 @@ import {
 
 const Reels = () => {
   const [index, setIndex] = useState(0);
-  const { reels,loading } = postData();
+  const { reels,loading } = PostData();
 
   const prevReel = () => {
     if (index === 0) {

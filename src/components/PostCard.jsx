@@ -3,18 +3,28 @@ import { Link } from "react-router-dom";
 import { BsChatFill, BsThreeDotsVertical } from "react-icons/bs";
 import { IoHeartOutline, IoHeartSharp } from "react-icons/io5";
 import { UserData } from "../context/UserContext";
-import { postData } from "../context/PostContext";
+import { PostData } from "../context/PostContext";
 import { format } from "date-fns";
 import { RiDeleteBin6Line } from "react-icons/ri";
-
+import ThreeDotModal from "./ThreeDotModal";
+import { Loading, LoadingAnimation } from "./Loading";
+import toast from "react-hot-toast";
+import axios from "axios";
 
 const PostCard = ({ type, value }) => {
   const [isLike, setIsLike] = useState(false);
   const [show, setShow] = useState(false);
   const [comment, setComment] = useState("");
+  const [showModal, setShowModal] = useState(false);
+  const [showInput, setShowInput] = useState(false);
+  const [caption, setCaption] = useState(value.caption ? value.caption : "");
+  const [captionLoading, setCaptionLoading] = useState(false);
+
   const { user } = UserData();
-  const { likePost, addComment } = postData();
+  const { fetchPosts, likePost, addComment, deletePost, loading , deleteComment} = PostData();
+
   const formatDate = format(new Date(value.createdAt), "MMMM do");
+
   useEffect(() => {
     for (let i = 0; i < value.likes.length; i++) {
       if (value.likes[i] === user._id) setIsLike(true);
@@ -31,8 +41,52 @@ const PostCard = ({ type, value }) => {
     addComment(value._id, comment, setComment, setShow);
   };
 
+  const closeModal = () => {
+    setShowModal(false);
+  };
+
+  const deleteHandler = () => {
+    deletePost(value._id);
+  };
+
+  const editHandler = () => {
+    setShowModal(false);
+    setShowInput(true);
+  };
+
+  async function updateCaption() {
+    setCaptionLoading(true);
+    try {
+      const { data } = await axios.put("/api/post/" + value._id, { caption });
+      toast.success(data.message);
+      fetchPosts();
+      setShowInput(false);
+      setCaptionLoading(false);
+    } catch (error) {
+      toast.error(error.response.data.message);
+      setCaptionLoading(false);
+    }
+  }
+
   return (
     <div className="bg-gray-100 flex justify-center items-center pt-3 pb-14">
+      <ThreeDotModal isOpen={showModal} onClose={closeModal}>
+        <div className="flex flex-col items-center justify-center gap-3">
+          <button
+            onClick={editHandler}
+            className="bg-blue-400 text-white py-1 px-3 rounded-m"
+          >
+            Edit
+          </button>
+          <button
+            onClick={deleteHandler}
+            className="bg-red-400 text-white py-1 px-3 rounded-md cursor-pointer"
+            disabled={loading}
+          >
+            {loading ? <LoadingAnimation /> : "Delete"}
+          </button>
+        </div>
+      </ThreeDotModal>
       <div className="bg-white p-8 rounded-lg shadow-md max-w-md">
         <div className="flex items-center justify-between space-x-2">
           <Link to={`/user/${value.owner._id}`}>
@@ -50,15 +104,50 @@ const PostCard = ({ type, value }) => {
               </div>
             </div>
           </Link>
-          {value.owner._id===user._id && (<div className="text-gray-500 ">
-            <button className="cursor-pointer hover:bg-gray-50 rounded-full p-1 text-2xl">
-              <BsThreeDotsVertical />
-            </button>
-          </div>)}
+          {value.owner._id === user._id && (
+            <div className="text-gray-500 ">
+              <button
+                onClick={() => setShowModal(true)}
+                className="cursor-pointer hover:bg-gray-50 rounded-full p-1 text-2xl"
+              >
+                <BsThreeDotsVertical />
+              </button>
+            </div>
+          )}
         </div>
 
         <div className="mb-4">
-          <p className="text-gray-800">{value.caption}</p>
+          {showInput ? (
+            <>
+              <div className="flex flex-row justify-between items-center">
+                <input
+                  type="text"
+                  className="custom-input max-w-[250px] "
+                  placeholder="Enter Caption"
+                  value={caption}
+                  onChange={(e) => setCaption(e.target.value)}
+                  required
+                />
+                <div>
+                  <button
+                    onClick={updateCaption}
+                    className="text-sm bg-blue-500 text-white px-1 py-1"
+                    disabled={captionLoading}
+                  >
+                    {captionLoading ? <LoadingAnimation /> : "Update"}
+                  </button>
+                  <button
+                    onClick={() => setShowInput(false)}
+                    className="text-sm bg-gray-500 text-white mx-[2px] px-1 py-1"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            </>
+          ) : (
+            <p className="text-gray-800">{value.caption}</p>
+          )}
         </div>
 
         <div className="mb-4">
@@ -118,7 +207,9 @@ const PostCard = ({ type, value }) => {
         <div className="mt-4 ">
           <div className="comments max-h-[200px] overflow-y-auto">
             {value.comments && value.comments.length > 0 ? (
-              value.comments.map((e) => <Comment value={e} key={e._id} user={user} />)
+              value.comments.map((e) => (
+                <Comment value={e} key={e._id} user={user} owner={value.owner._id} id={value._id}/>
+              ))
             ) : (
               <p>No Comments</p>
             )}
@@ -131,7 +222,11 @@ const PostCard = ({ type, value }) => {
 
 export default PostCard;
 
-export const Comment = ({ value,user }) => {
+export const Comment = ({ value, user ,owner, id}) => {
+  const {deleteComment}=PostData()
+  const deleteCommentHandler=()=>{
+    deleteComment(id,value._id)
+  }
   return (
     <div className="flex items-center space-x-2 mt-2">
       <Link to={`/user/${value.user._id}`}>
@@ -147,7 +242,22 @@ export const Comment = ({ value,user }) => {
         </Link>
         <p className="text-gray-500 font-sm">{value.comment}</p>
       </div>
-      {value.user._id===user._id && <button className="text-red-500" ><RiDeleteBin6Line /></button>}
+      {owner=== user._id ? (
+        ""
+      ) : (
+        <>
+          {value.user._id === user._id && (
+            <button onClick={deleteCommentHandler} className="text-red-500">
+              <RiDeleteBin6Line />
+            </button>
+          )}
+        </>
+      )}
+      {owner=== user._id && (
+        <button onClick={deleteCommentHandler} className="text-red-500">
+          <RiDeleteBin6Line />
+        </button>
+      )}
     </div>
   );
 };

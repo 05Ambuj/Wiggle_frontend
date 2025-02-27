@@ -1,11 +1,11 @@
 import React from "react";
 import AddPost from "../components/AddPost";
 import PostCard from "../components/PostCard";
-import { postData } from "../context/PostContext";
+import { PostData } from "../context/PostContext";
 import {Loading} from "../components/Loading";
 
 const Home = () => {
-  const { posts,loading } = postData();
+  const { posts,loading } = PostData();
   return (
     <>
     {loading?<Loading/>:(<div>

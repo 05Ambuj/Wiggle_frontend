@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { UserData } from "../context/UserContext";
-import { postData } from "../context/PostContext";
+import { PostData } from "../context/PostContext";
 import PostCard from "../components/PostCard";
 import axios from "axios";
 import { Loading } from "../components/Loading";
@@ -13,7 +13,7 @@ import {
 } from "react-icons/md";
 
 const UserAccount = ({ user: loggedInUser }) => {
-  const { posts, reels } = postData();
+  const { posts, reels } = PostData();
   const [type, setType] = useState("posts");
   const [index, setIndex] = useState(0);
   const [user, setUser] = useState([]);
